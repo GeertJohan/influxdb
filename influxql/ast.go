@@ -2,6 +2,7 @@ package influxql
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -535,6 +536,9 @@ type SelectStatement struct {
 
 	// Returns rows starting at an offset from the first row.
 	Offset int
+
+	// memoize the group by interval
+	groupByInterval time.Duration
 }
 
 // String returns a string representation of the select statement.
@@ -591,6 +595,37 @@ func (s *SelectStatement) Aggregated() bool {
 		}
 	})
 	return v
+}
+
+// GroupByIterval extacts the time interval, if specified.
+func (s *SelectStatement) GroupByInterval() (time.Duration, error) {
+	// return if we've already puled it out
+	if s.groupByInterval != 0 {
+		return s.groupByInterval, nil
+	}
+
+	// Ignore if there are no dimensions.
+	if len(s.Dimensions) == 0 {
+		return 0, nil
+	}
+
+	for _, d := range s.Dimensions {
+		if call, ok := d.Expr.(*Call); ok && strings.ToLower(call.Name) == "time" {
+			// Make sure there is exactly one argument.
+			if len(call.Args) != 1 {
+				return 0, errors.New("time dimension expected one argument")
+			}
+
+			// Ensure the argument is a duration.
+			lit, ok := call.Args[0].(*DurationLiteral)
+			if !ok {
+				return 0, errors.New("time dimension must have one duration argument")
+			}
+			s.groupByInterval = lit.Val
+			return lit.Val, nil
+		}
+	}
+	return 0, nil
 }
 
 /*

@@ -103,6 +103,9 @@ var (
 	// ErrNotExecuted is returned when a statement is not executed in a query.
 	// This can occur when a previous statement in the same query has errored.
 	ErrNotExecuted = errors.New("not executed")
+
+	// ErrContinuousQueryExists is returned when creating a duplicate continuous query.
+	ErrContinuousQueryExists = errors.New("continuous query already exists")
 )
 
 // ErrAuthorize represents an authorization error.
