@@ -2154,6 +2154,10 @@ func (s *Server) applyCreateContinuousQueryCommand(m *messaging.Message) error {
 	return nil
 }
 
+func (s *Server) RunContinuousQueries() error {
+	return nil
+}
+
 type createContinuousQueryCommand struct {
 	Query string `json:"query"`
 }

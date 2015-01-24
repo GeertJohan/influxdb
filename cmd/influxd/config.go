@@ -110,6 +110,9 @@ type Config struct {
 		File  string `toml:"file"`
 		Level string `toml:"level"`
 	} `toml:"logging"`
+
+	ContinuousQuery struct {
+	}
 }
 
 // NewConfig returns an instance of Config with reasonable defaults.
