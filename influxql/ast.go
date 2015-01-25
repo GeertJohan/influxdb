@@ -640,7 +640,11 @@ func (s *SelectStatement) SetTimeRange(start, end time.Time) error {
 	if err != nil {
 		return err
 	}
-	s.Condition = expr
+
+	// fold out any previously replaced time dimensios and set the condition
+	t := time.Now()
+	s.Condition = Fold(expr, &t)
+
 	return nil
 }
 
